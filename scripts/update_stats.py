@@ -64,6 +64,7 @@ query($login: String!) {
     id
     contributionsCollection {
       hasAnyRestrictedContributions
+      restrictedContributionsCount
       contributionCalendar { totalContributions }
     }
   }
@@ -165,10 +166,17 @@ def collect(token, now):
         "prs_opened": len(own),
         "prs_merged": sum(1 for p in own if p["merged"]),
         "active_repos": active,
-        # GitHub's own total. Only meaningful when private contributions are
-        # shared; otherwise it silently omits private work, so it is hidden.
+        # GitHub's own totals across every repository, including private ones
+        # the token cannot read (for example an employer's). They only mean
+        # something when private contributions are shared on the profile;
+        # otherwise GitHub silently omits private work, so they are hidden.
         "contributions": (
             calendar["contributionCalendar"]["totalContributions"]
+            if calendar["hasAnyRestrictedContributions"]
+            else None
+        ),
+        "private_contributions": (
+            calendar["restrictedContributionsCount"]
             if calendar["hasAnyRestrictedContributions"]
             else None
         ),
@@ -198,7 +206,7 @@ def esc(text):
 
 
 FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
-WIDTH, HEIGHT = 400, 210
+WIDTH, HEIGHT = 400, 270
 
 
 def frame(theme, title, subtitle, body, updated):
@@ -218,19 +226,31 @@ def frame(theme, title, subtitle, body, updated):
 
 def activity_svg(theme, stats, updated):
     c = THEMES[theme]
-    rows = [
+    own = [
         ("Commits", f"{stats['commits']:,}"),
-        ("Pull requests merged", f"{stats['prs_merged']:,} of {stats['prs_opened']:,}"),
+        ("Pull requests", f"{stats['prs_opened']:,} opened · {stats['prs_merged']:,} merged"),
         ("Active repositories", f"{stats['active_repos']:,}"),
     ]
+    everywhere = []
     if stats["contributions"] is not None:
-        rows.append(("Contributions, all repos", f"{stats['contributions']:,}"))
+        everywhere = [
+            ("Contributions", f"{stats['contributions']:,}"),
+            ("of which private", f"{stats['private_contributions']:,}"),
+        ]
     out = []
-    for i, (label, value) in enumerate(rows):
-        y = 90 + i * 26
+
+    def row(label, value, y):
         out.append(f'    <text x="24" y="{y}" font-size="14" fill="{c["muted"]}">{esc(label)}</text>')
         out.append(f'    <text x="{WIDTH - 24}" y="{y}" font-size="14" font-weight="600" text-anchor="end" fill="{c["text"]}">{esc(value)}</text>')
-    return frame(theme, "Activity", "Last 12 months, repositories I own", "\n".join(out), updated)
+
+    for i, (label, value) in enumerate(own):
+        row(label, value, 90 + i * 26)
+    if everywhere:
+        out.append(f'    <line x1="24" y1="158" x2="{WIDTH - 24}" y2="158" stroke="{c["border"]}"/>')
+        out.append(f'    <text x="24" y="176" font-size="11" fill="{c["muted"]}">All repositories, GitHub\'s own count</text>')
+        for i, (label, value) in enumerate(everywhere):
+            row(label, value, 200 + i * 26)
+    return frame(theme, "Activity", "Last 12 months · repositories I own", "\n".join(out), updated)
 
 
 def languages_svg(theme, langs, updated):

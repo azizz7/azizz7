@@ -7,20 +7,35 @@ published to the `stats` branch, so `main` stays free of bot commits.
 
 ## What the numbers mean
 
-All figures cover repositories owned by `azizz7` (public and private), last 12 months.
+The first three rows cover repositories owned by `azizz7` (public and private), last 12 months.
 
 | Card row | Source |
 |---|---|
 | Commits | Commits authored by me on each repo's default branch |
-| Pull requests merged of opened | PRs I opened in my own repos, and how many were merged |
+| Pull requests | PRs I opened in my own repos, and how many of those were merged |
 | Active repositories | Own repos pushed to in the last 12 months |
-| Contributions, all repos | GitHub's own total. Shown only if private contributions are enabled on the profile; otherwise hidden, because it would silently omit private work |
+| Contributions | GitHub's own total across all repositories, including private ones the token cannot read (for example an employer's) |
+| of which private | GitHub's anonymous count of private contributions |
 | Languages | GitHub's language detection, by code size, in repos pushed to in the last 12 months. HTML, CSS, notebooks and Makefiles are excluded |
 
-Not included: work in repositories owned by other accounts or organisations
-(for example an employer's private repos). A read-only token owned by this
-account cannot read them. With private contributions enabled, GitHub counts
-that work in its own total.
+The last two Activity rows only appear when private contributions are enabled
+on the profile; otherwise they are hidden, because GitHub would silently omit
+private work and the number would mislead.
+
+Not included: issues, and per-repository breakdowns for repositories owned by
+other accounts or organisations. A read-only token owned by this account cannot
+read them. With private contributions enabled, GitHub still counts that work
+in the all-repositories total, with no names or details.
+
+## Profile views counter
+
+The "Profile views" badge in the README comes from komarev.com's
+[github-profile-views-counter](https://github.com/antonkomarev/github-profile-views-counter).
+It counts page loads (hits) made through GitHub's image proxy, not unique
+people, and it cannot see visitor IPs or usernames. If the service is down the
+badge shows its alt text and the rest of the page is unaffected. There is
+nothing to configure or renew. To reset the count, use the reset page linked
+from that project's README.
 
 ## One-time setup
 
