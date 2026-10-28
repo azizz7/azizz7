@@ -1,0 +1,43 @@
+name: Update stats
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+# Needed only to push the generated images to the "stats" branch.
+permissions:
+  contents: write
+
+concurrency:
+  group: update-stats
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      # The read-only token is exposed to this one step only. If the script
+      # fails, nothing is published and the previous images stay in place.
+      - name: Build stats images
+        env:
+          STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
+        run: python3 scripts/update_stats.py --out dist
+
+      - name: Publish to stats branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd dist
+          git init -q -b stats
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -q -m "Update stats $(date -u +%F)"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" stats
