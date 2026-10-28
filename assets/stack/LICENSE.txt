@@ -1,0 +1,2 @@
+Brand icons are from simple-icons v16.36.0 (https://github.com/simple-icons/simple-icons), CC0 1.0, in their official brand colours.
+Next.js has dark and light variants. Pill graphics are original.

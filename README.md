@@ -1,4 +1,4 @@
-<img src="assets/hero.jpg" alt="Aziz Barwaniwala" width="100%">
+<img src="assets/sky.jpg" alt="A starry night sky with a constellation shaped like a git commit graph" width="100%">
 
 <p align="center"><b>Python Developer</b> · Backend engineering &amp; AI orchestration</p>
 
@@ -10,39 +10,36 @@
 </p>
 
 <p align="center">
-  I build production backends and AI systems at <b>Primis Digital LLP</b>:<br>
+  I build production backends and AI systems:<br>
   FastAPI, PostgreSQL, RAG and LLM orchestration.<br>
   <sub>Fun fact: I played football as a national-level striker.</sub>
 </p>
 
 ## Stack
 
-<p>
-  <sub><b>BACKEND &amp; DATA</b></sub><br>
-  <img src="assets/skills/python.svg" alt="Python" title="Python" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/fastapi.svg" alt="FastAPI" title="FastAPI" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/postgresql.svg" alt="PostgreSQL" title="PostgreSQL" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/redis.svg" alt="Redis" title="Redis" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/neo4j.svg" alt="Neo4j" title="Neo4j" height="28" align="absmiddle">
+<p align="center">
+  <img src="assets/stack/python.svg" alt="Python" title="Python" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/fastapi.svg" alt="FastAPI" title="FastAPI" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/postgresql.svg" alt="PostgreSQL" title="PostgreSQL" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/redis.svg" alt="Redis" title="Redis" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/neo4j.svg" alt="Neo4j" title="Neo4j" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/langchain.svg" alt="LangChain" title="LangChain" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/react.svg" alt="React" title="React" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/stack/nextdotjs-dark.svg">
+    <img src="assets/stack/nextdotjs-light.svg" alt="Next.js" title="Next.js" height="40">
+  </picture>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/typescript.svg" alt="TypeScript" title="TypeScript" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/docker.svg" alt="Docker" title="Docker" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/googlecloud.svg" alt="Google Cloud" title="Google Cloud" height="40">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/stack/githubactions.svg" alt="GitHub Actions" title="GitHub Actions" height="40">
 </p>
 
-<p>
-  <sub><b>AI</b></sub><br>
-  <img src="assets/skills/langchain.svg" alt="LangChain" title="LangChain" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/pill-rag.svg" alt="RAG" title="Retrieval-augmented generation" height="28" align="absmiddle">&nbsp;
-  <img src="assets/skills/pill-llm.svg" alt="LLM" title="LLM integration and orchestration" height="28" align="absmiddle">&nbsp;
-  <img src="assets/skills/pill-chromadb.svg" alt="ChromaDB" title="ChromaDB vector search" height="28" align="absmiddle">&nbsp;
-  <img src="assets/skills/pill-ragas.svg" alt="RAGAS" title="RAGAS evaluation" height="28" align="absmiddle">
-</p>
-
-<p>
-  <sub><b>FRONTEND &amp; CLOUD</b></sub><br>
-  <img src="assets/skills/react.svg" alt="React" title="React" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/nextdotjs.svg" alt="Next.js" title="Next.js" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/typescript.svg" alt="TypeScript" title="TypeScript" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/docker.svg" alt="Docker" title="Docker" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/googlecloud.svg" alt="Google Cloud" title="Google Cloud" height="28" align="absmiddle">&nbsp;&nbsp;&nbsp;
-  <img src="assets/skills/githubactions.svg" alt="GitHub Actions" title="GitHub Actions" height="28" align="absmiddle">
+<p align="center">
+  <img src="assets/stack/pill-rag.svg" alt="RAG" title="Retrieval-augmented generation" height="32">&nbsp;
+  <img src="assets/stack/pill-llm.svg" alt="LLM" title="LLM integration and orchestration" height="32">&nbsp;
+  <img src="assets/stack/pill-chromadb.svg" alt="ChromaDB" title="ChromaDB vector search" height="32">&nbsp;
+  <img src="assets/stack/pill-ragas.svg" alt="RAGAS" title="RAGAS evaluation" height="32">
 </p>
 
 ## Selected work
@@ -56,19 +53,6 @@
   <a href="https://rounakpaints.com"><img src="assets/cards/rounak-paints.svg" width="404" alt="Rounak Paints. Live website for a family-owned paint manufacturer, with a catalogue across 12 categories and WhatsApp lead generation. June 2026."></a>
 </p>
 
-## Activity
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/azizz7/azizz7/stats/tile-contributions.svg" width="150" alt="Contributions in the last 12 months across all repositories">
-  <img src="https://raw.githubusercontent.com/azizz7/azizz7/stats/tile-commits.svg" width="150" alt="Commits in the last 12 months in my repositories">
-  <img src="https://raw.githubusercontent.com/azizz7/azizz7/stats/tile-prs.svg" width="150" alt="Pull requests opened and merged in my repositories">
-  <img src="https://raw.githubusercontent.com/azizz7/azizz7/stats/tile-repos.svg" width="150" alt="Repositories pushed to in the last 12 months">
-</p>
-
-<p align="center">
-  <img alt="Profile views" src="https://komarev.com/ghpvc/?username=azizz7&label=Profile+views&color=2563eb&style=flat-square">
-</p>
-
 ## Certifications
 
 **Anthropic** · [Claude Code 101](https://verify.skilljar.com/c/q32exff4hb5f) · [Claude 101](https://verify.skilljar.com/c/c8ak3bv56kov) · 2026<br>
@@ -76,4 +60,22 @@
 **Arizona State University** · [Machine Learning with Python](https://coursera.org/share/ea4c17bdf8beb3a5a58dafe8c7132c58) · 2024<br>
 **NPTEL** · [Operating Systems](https://archive.nptel.ac.in/content/noc/NOC24/SEM2/Ecertificates/106/noc24-cs80/Course/NPTEL24CS80S43720320702648406.pdf) · 2024
 
-<p align="center"><sub>Activity updates daily via GitHub Actions. Contributions is GitHub's count across all repositories, including private work for other organisations; commits, pull requests and repositories cover those I own, public and private. Profile views count page loads, not unique visitors.</sub></p>
+## Activity
+
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/azizz7/azizz7/stats/activity-dark.svg">
+    <img alt="Activity over the last 12 months" src="https://raw.githubusercontent.com/azizz7/azizz7/stats/activity-light.svg" width="400">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/azizz7/azizz7/stats/languages-dark.svg">
+    <img alt="Language share across repositories I pushed to this year" src="https://raw.githubusercontent.com/azizz7/azizz7/stats/languages-light.svg" width="400">
+  </picture>
+</p>
+
+<p>
+  <img alt="Profile views" src="https://komarev.com/ghpvc/?username=azizz7&label=Profile+views&color=2563eb&style=flat-square" align="absmiddle">
+  <sub>&nbsp;Page loads, not unique visitors.</sub>
+</p>
+
+<sub>Updated daily by a GitHub Action. Commits, pull requests and active repositories cover repositories I own, public and private. The lower two figures are GitHub's own count across all repositories, including private work for other organisations, with no details shown. Issues and per-organisation breakdowns can't be read with a read-only token, so they are not listed. Languages are GitHub's detection by code size, with markup and notebooks excluded; they are not a measure of skill.</sub>

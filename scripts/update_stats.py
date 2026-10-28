@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
-"""Build the profile activity tiles from the GitHub GraphQL API.
+"""Build the profile activity and language cards from the GitHub GraphQL API.
 
-Standard library only. Reads STATS_TOKEN (a read-only token) and writes one SVG
-tile per metric to --out: tile-contributions.svg, tile-commits.svg,
-tile-prs.svg and tile-repos.svg.
+Standard library only. Reads STATS_TOKEN (a read-only token) and writes four
+SVGs to --out: activity-{dark,light}.svg and languages-{dark,light}.svg.
 
-Scope of every number, last 12 months:
-  commits, pull requests, active repos  repositories owned by LOGIN, public and private
-  contributions                         GitHub's own count across all repositories,
-                                        including private work the token cannot read
-
-Anything that cannot be read is left out, never shown as 0. On any API error or
-malformed data the script exits non-zero and writes nothing, so the previously
-published tiles stay in place.
+Scope of every number: repositories owned by LOGIN, public and private, in the
+last 12 months. Anything that cannot be read is left out, never shown as 0.
+On any API error or malformed data the script exits non-zero and writes
+nothing, so the previously published images stay in place.
 """
 import argparse
 import datetime as dt
@@ -27,6 +22,11 @@ import urllib.request
 API = "https://api.github.com/graphql"
 LOGIN = os.environ.get("STATS_LOGIN", "azizz7")
 WINDOW_DAYS = 365
+# Markup and notebooks are not "code written", and one large generated file
+# would otherwise dominate the language share.
+EXCLUDED_LANGUAGES = {"HTML", "CSS", "SCSS", "Jupyter Notebook", "Makefile"}
+MAX_LANGUAGES = 5
+MIN_LANGUAGE_SHARE = 1.0  # percent; hides noise such as a 0.0% Dockerfile
 
 REPOS_QUERY = """
 query($login: String!, $id: ID!, $since: GitTimestamp!, $cursor: String) {
@@ -35,6 +35,9 @@ query($login: String!, $id: ID!, $since: GitTimestamp!, $cursor: String) {
       pageInfo { hasNextPage endCursor }
       nodes {
         pushedAt
+        languages(first: 20, orderBy: {field: SIZE, direction: DESC}) {
+          edges { size node { name color } }
+        }
         defaultBranchRef { target { ... on Commit {
           history(author: {id: $id}, since: $since) { totalCount }
         } } }
@@ -67,6 +70,11 @@ query($login: String!) {
   }
 }
 """
+
+THEMES = {
+    "dark": dict(bg="#0d1117", border="#30363d", text="#e6edf3", muted="#8b949e", accent="#58a6ff", track="#21262d"),
+    "light": dict(bg="#ffffff", border="#d0d7de", text="#1f2328", muted="#656d76", accent="#0969da", track="#eaeef2"),
+}
 
 
 class StatsError(Exception):
@@ -131,76 +139,139 @@ def paginate(token, query, variables, connection):
 def collect(token, now):
     since = (now - dt.timedelta(days=WINDOW_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
     user = graphql(token, USER_QUERY, {"login": LOGIN})
+    user_id = user["id"]
     calendar = user["contributionsCollection"]
 
-    repos = paginate(token, REPOS_QUERY, {"login": LOGIN, "id": user["id"], "since": since}, "repositories")
+    repos = paginate(token, REPOS_QUERY, {"login": LOGIN, "id": user_id, "since": since}, "repositories")
     prs = paginate(token, PRS_QUERY, {"login": LOGIN}, "pullRequests")
 
-    commits = active = 0
+    commits = 0
+    active = 0
+    languages = {}
     for repo in repos:
         if repo["pushedAt"] and repo["pushedAt"] >= since:
             active += 1
+            for edge in repo["languages"]["edges"]:
+                name = edge["node"]["name"]
+                if name in EXCLUDED_LANGUAGES:
+                    continue
+                size, color = languages.get(name, (0, edge["node"]["color"]))
+                languages[name] = (size + edge["size"], color)
         target = (repo["defaultBranchRef"] or {}).get("target") or {}
         commits += (target.get("history") or {}).get("totalCount", 0)
 
     own = [p for p in prs if p["repository"]["owner"]["login"].lower() == LOGIN.lower() and p["createdAt"] >= since]
-    shared = calendar["hasAnyRestrictedContributions"]
-    return {
+    stats = {
         "commits": commits,
         "prs_opened": len(own),
         "prs_merged": sum(1 for p in own if p["merged"]),
         "active_repos": active,
-        # GitHub's own totals only mean something when private contributions are
-        # shared on the profile; otherwise they silently omit private work, so
-        # they are hidden rather than shown as a misleadingly small number.
-        "contributions": calendar["contributionCalendar"]["totalContributions"] if shared else None,
-        "private_contributions": calendar["restrictedContributionsCount"] if shared else None,
+        # GitHub's own totals across every repository, including private ones
+        # the token cannot read (for example an employer's). They only mean
+        # something when private contributions are shared on the profile;
+        # otherwise GitHub silently omits private work, so they are hidden.
+        "contributions": (
+            calendar["contributionCalendar"]["totalContributions"]
+            if calendar["hasAnyRestrictedContributions"]
+            else None
+        ),
+        "private_contributions": (
+            calendar["restrictedContributionsCount"]
+            if calendar["hasAnyRestrictedContributions"]
+            else None
+        ),
     }
+    total = sum(size for size, _ in languages.values())
+    ranked = sorted(languages.items(), key=lambda kv: -kv[1][0])
+    langs = [
+        (n, 100 * s / total, c or "#8b949e")
+        for n, (s, c) in ranked[:MAX_LANGUAGES]
+        if total and 100 * s / total >= MIN_LANGUAGE_SHARE
+    ]
+    return stats, langs
 
 
-def validate(stats):
+def validate(stats, langs):
     for key in ("commits", "prs_opened", "prs_merged", "active_repos"):
         if not isinstance(stats[key], int) or stats[key] < 0:
             raise StatsError(f"bad value for {key}: {stats[key]!r}")
     if stats["prs_merged"] > stats["prs_opened"]:
         raise StatsError("merged PRs exceed opened PRs")
+    if not langs:
+        raise StatsError("no language data")
+
+
+def esc(text):
+    return html.escape(str(text), quote=True)
 
 
 FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
-WIDTH, HEIGHT = 156, 108
+WIDTH, HEIGHT = 400, 270
 
 
-def tile(label, value, sub):
-    text = f"{label}: {value}, {sub}"
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" role="img" aria-label="{html.escape(text, quote=True)}">
-  <title>{html.escape(text)}</title>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10162a"/><stop offset="1" stop-color="#0a0e19"/></linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f59e0b"/><stop offset="1" stop-color="#60a5fa"/></linearGradient>
-    <clipPath id="r"><rect width="{WIDTH}" height="{HEIGHT}" rx="12"/></clipPath>
-  </defs>
-  <g clip-path="url(#r)">
-    <rect width="{WIDTH}" height="{HEIGHT}" fill="url(#bg)"/>
-    <rect x="18" width="28" height="3" fill="url(#accent)"/>
-  </g>
-  <rect x="0.5" y="0.5" width="{WIDTH - 1}" height="{HEIGHT - 1}" rx="11.5" fill="none" stroke="#252d45"/>
+def frame(theme, title, subtitle, body, updated):
+    c = THEMES[theme]
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" role="img" aria-label="{esc(title)}: {esc(subtitle)}">
+  <title>{esc(title)}</title>
+  <rect x="0.5" y="0.5" width="{WIDTH - 1}" height="{HEIGHT - 1}" rx="10" fill="{c['bg']}" stroke="{c['border']}"/>
   <g font-family="{FONT}">
-    <text x="18" y="56" font-size="34" font-weight="700" fill="#f5f7fb">{html.escape(value)}</text>
-    <text x="18" y="76" font-size="10.5" font-weight="600" letter-spacing="1.3" fill="#7aa7ff">{html.escape(label)}</text>
-    <text x="18" y="93" font-size="10.5" fill="#7f8aa3">{html.escape(sub)}</text>
+    <text x="24" y="38" font-size="18" font-weight="600" fill="{c['accent']}">{esc(title)}</text>
+    <text x="24" y="58" font-size="12" fill="{c['muted']}">{esc(subtitle)}</text>
+{body}
+    <text x="24" y="{HEIGHT - 16}" font-size="11" fill="{c['muted']}">Updated {esc(updated)}</text>
   </g>
 </svg>
 """
 
 
-def tiles(stats):
-    out = {}
+def activity_svg(theme, stats, updated):
+    c = THEMES[theme]
+    own = [
+        ("Commits", f"{stats['commits']:,}"),
+        ("Pull requests", f"{stats['prs_opened']:,} opened · {stats['prs_merged']:,} merged"),
+        ("Active repositories", f"{stats['active_repos']:,}"),
+    ]
+    everywhere = []
     if stats["contributions"] is not None:
-        out["tile-contributions.svg"] = tile("CONTRIBUTIONS", f"{stats['contributions']:,}", f"incl. {stats['private_contributions']:,} private")
-    out["tile-commits.svg"] = tile("COMMITS", f"{stats['commits']:,}", "my repos · 12 months")
-    out["tile-prs.svg"] = tile("PULL REQUESTS", f"{stats['prs_opened']:,}", f"{stats['prs_merged']:,} merged · my repos")
-    out["tile-repos.svg"] = tile("ACTIVE REPOS", f"{stats['active_repos']:,}", "pushed in 12 months")
-    return out
+        everywhere = [
+            ("Contributions", f"{stats['contributions']:,}"),
+            ("of which private", f"{stats['private_contributions']:,}"),
+        ]
+    out = []
+
+    def row(label, value, y):
+        out.append(f'    <text x="24" y="{y}" font-size="14" fill="{c["muted"]}">{esc(label)}</text>')
+        out.append(f'    <text x="{WIDTH - 24}" y="{y}" font-size="14" font-weight="600" text-anchor="end" fill="{c["text"]}">{esc(value)}</text>')
+
+    for i, (label, value) in enumerate(own):
+        row(label, value, 90 + i * 26)
+    if everywhere:
+        out.append(f'    <line x1="24" y1="158" x2="{WIDTH - 24}" y2="158" stroke="{c["border"]}"/>')
+        out.append(f'    <text x="24" y="176" font-size="11" fill="{c["muted"]}">All repositories, GitHub\'s own count</text>')
+        for i, (label, value) in enumerate(everywhere):
+            row(label, value, 200 + i * 26)
+    return frame(theme, "Activity", "Last 12 months · repositories I own", "\n".join(out), updated)
+
+
+def languages_svg(theme, langs, updated):
+    c = THEMES[theme]
+    bar_x, bar_w, bar_y = 24, WIDTH - 48, 78
+    parts = [f'    <clipPath id="bar"><rect x="{bar_x}" y="{bar_y}" width="{bar_w}" height="8" rx="4"/></clipPath>',
+             f'    <rect x="{bar_x}" y="{bar_y}" width="{bar_w}" height="8" rx="4" fill="{c["track"]}"/>',
+             '    <g clip-path="url(#bar)">']
+    x = float(bar_x)
+    total = sum(p for _, p, _ in langs)
+    for name, pct, color in langs:
+        w = bar_w * pct / total
+        parts.append(f'      <rect x="{x:.2f}" y="{bar_y}" width="{w:.2f}" height="8" fill="{esc(color)}"/>')
+        x += w
+    parts.append("    </g>")
+    for i, (name, pct, color) in enumerate(langs):
+        col, row = i % 2, i // 2
+        lx, ly = 24 + col * 180, 114 + row * 26
+        parts.append(f'    <circle cx="{lx + 5}" cy="{ly - 4}" r="5" fill="{esc(color)}"/>')
+        parts.append(f'    <text x="{lx + 18}" y="{ly}" font-size="13" fill="{c["text"]}">{esc(name)} <tspan fill="{c["muted"]}">{pct:.1f}%</tspan></text>')
+    return frame(theme, "Languages", "Share of code by size, repos I pushed to this year", "\n".join(parts), updated)
 
 
 def main():
@@ -212,17 +283,21 @@ def main():
     if not token:
         sys.exit("STATS_TOKEN is not set")
 
+    now = dt.datetime.now(dt.timezone.utc)
     try:
-        stats = collect(token, dt.datetime.now(dt.timezone.utc))
-        validate(stats)
+        stats, langs = collect(token, now)
+        validate(stats, langs)
     except (StatsError, KeyError, TypeError) as e:
-        sys.exit(f"stats update failed, keeping previous tiles: {e}")
+        sys.exit(f"stats update failed, keeping previous images: {e}")
 
+    updated = now.strftime("%Y-%m-%d")
     os.makedirs(args.out, exist_ok=True)
-    for name, svg in tiles(stats).items():
-        with open(os.path.join(args.out, name), "w", encoding="utf-8") as f:
-            f.write(svg)
-    print(json.dumps(stats))
+    for theme in THEMES:
+        with open(os.path.join(args.out, f"activity-{theme}.svg"), "w", encoding="utf-8") as f:
+            f.write(activity_svg(theme, stats, updated))
+        with open(os.path.join(args.out, f"languages-{theme}.svg"), "w", encoding="utf-8") as f:
+            f.write(languages_svg(theme, langs, updated))
+    print(json.dumps({"stats": stats, "languages": [(n, round(p, 1)) for n, p, _ in langs]}))
 
 
 if __name__ == "__main__":
