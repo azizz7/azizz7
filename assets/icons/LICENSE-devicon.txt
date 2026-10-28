@@ -1,3 +1,0 @@
-Icons in this folder are copied unmodified from devicon v2.16.0
-(https://github.com/devicons/devicon), MIT License, Copyright (c) 2015 konpa.
-aws-dark.svg is aws.svg with a light default fill added for dark mode.
