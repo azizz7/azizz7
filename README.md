@@ -1,4 +1,4 @@
-<img src="assets/sky.jpg" alt="A starry night sky with a constellation shaped like a git commit graph" width="100%">
+<img src="assets/horizon.jpg" alt="The curved horizon of a planet with a bright sunrise glow above a field of stars" width="100%">
 
 <p align="center"><b>Python Developer</b> · Backend engineering &amp; AI orchestration</p>
 
