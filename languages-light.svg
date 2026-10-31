@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="270" viewBox="0 0 400 270" role="img" aria-label="Languages: Share of code by size, repos I pushed to this year">
+  <title>Languages</title>
+  <rect x="0.5" y="0.5" width="399" height="269" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+    <text x="24" y="38" font-size="18" font-weight="600" fill="#0969da">Languages</text>
+    <text x="24" y="58" font-size="12" fill="#656d76">Share of code by size, repos I pushed to this year</text>
+    <clipPath id="bar"><rect x="24" y="78" width="352" height="8" rx="4"/></clipPath>
+    <rect x="24" y="78" width="352" height="8" rx="4" fill="#eaeef2"/>
+    <g clip-path="url(#bar)">
+      <rect x="24.00" y="78" width="264.59" height="8" fill="#3572A5"/>
+      <rect x="288.59" y="78" width="47.40" height="8" fill="#f1e05a"/>
+      <rect x="335.99" y="78" width="40.01" height="8" fill="#3178c6"/>
+    </g>
+    <circle cx="29" cy="110" r="5" fill="#3572A5"/>
+    <text x="42" y="114" font-size="13" fill="#1f2328">Python <tspan fill="#656d76">74.7%</tspan></text>
+    <circle cx="209" cy="110" r="5" fill="#f1e05a"/>
+    <text x="222" y="114" font-size="13" fill="#1f2328">JavaScript <tspan fill="#656d76">13.4%</tspan></text>
+    <circle cx="29" cy="136" r="5" fill="#3178c6"/>
+    <text x="42" y="140" font-size="13" fill="#1f2328">TypeScript <tspan fill="#656d76">11.3%</tspan></text>
+    <text x="24" y="254" font-size="11" fill="#656d76">Updated 2026-10-31</text>
+  </g>
+</svg>
